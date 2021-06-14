@@ -1,12 +1,12 @@
 const { UniqueConstraintError } = require("sequelize/lib/errors");
-const router = require("express").Router();
+const router = require('express').Router();
 const { UserModel } = require("../models");
 
 router.post("/register", async (req, res) => {
     let { email, password } = req.body.user;
     try {
     const User = await UserModel.create({
-        email,
+        email, 
         password
     });
 
@@ -20,12 +20,12 @@ router.post("/register", async (req, res) => {
                 message: "Email already in use",
             });
         } else {
-            res.status(500).json({
-                message: "Failed to register user",
-            });
+        res.status(500).json({
+            message: "Failed to register user",
+        });
         }
     }
-});
+})
 
 router.post("/login", async (req, res) => {
     let { email, password } = req.body.user;
@@ -37,13 +37,21 @@ router.post("/login", async (req, res) => {
         },
     });
 
-    res.status(200).json({
-        user: loginUser,
-        message: "User successfully logged in!"
-    });
+    if (loginUser) {
+        res.status(200).json({
+            user: loginUser,
+            message: "User successfully logged in!"
+        });
+    } else {
+        res.status(401).json({
+            message: "Login failed"
+        });
+        }
     } catch (error) {
         res.status(500).json({
             message: "Failed to log user in"
         })
     }
 });
+
+module.exports = router;
