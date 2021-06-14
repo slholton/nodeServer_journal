@@ -8,11 +8,11 @@ router.post("/register", async (req, res) => {
     const User = await UserModel.create({
         email,
         password
-    })
+    });
 
     res.status(201).json({
         message: "User successfully registered",
-        user: User
+        user: User,
     });
     } catch (err) {
         if (err instanceof UniqueConstraintError) {
