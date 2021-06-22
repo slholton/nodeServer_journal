@@ -4,15 +4,6 @@ let validateJWT = require("../middleware/validate-jwt");
 
 const { JournalModel } = require("../models");
 
-router.get('/practice', validateJWT, (req, res) => {
-    res.send('Hey!! This is a practice route!')
-});
-
-/*
-====================================
-JOURNAL CREATE
-====================================
-*/
 router.post("/create", validateJWT, async (req, res) => {
     const { title, date, entry } = req.body.journal;
     const { id } = req.user;
@@ -30,13 +21,8 @@ router.post("/create", validateJWT, async (req, res) => {
     }
     JournalModel.create(journalEntry)
 
-})
+});
 
-/*
-===========================================
-GET ALL JOURNALS
-===========================================
-*/
 router.get("/", async (req, res) => {
     try {
         const entries = await JournalModel.findAll();
@@ -44,14 +30,9 @@ router.get("/", async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err });
     }
-})
+});
 
-/*
-===========================================
-GET JOURNALS BY USER
-===========================================
-*/
-router.get("/mine", validateJWT, async (req, res) => {
+router.get("/:owner", validateJWT, async (req, res) => {
     const { id } = req.user;
     try {
         const userJournals = await JournalModel.findAll({
@@ -65,8 +46,49 @@ router.get("/mine", validateJWT, async (req, res) => {
     }
 })
 
-router.get('/about', (req, res) => {
-    res.send('This is the about route!')
+router.put("/update/:entryId", validateJWT, async (req, res) => {
+    const { title, date, entry } = req.body.journal;
+    const journalId = req.params.entryId;
+    const userId = req.user.id;
+
+    const query = {
+        where: {
+            id: journalId,
+            owner: userId
+        }
+    };
+
+    const updatedLog = {
+        title: title,
+        date: date,
+        entry: entry
+    };
+
+    try {
+        const update = await JournalModel.update(updatedJournal, query);
+        res.status(200).json(update);
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+});
+
+router.delete("/delete/:id", validateJWT, async (req, res) => {
+    const ownerId = req.user.id;
+    const journalId = req.params.id;
+
+    try {
+        const query = {
+            where: {
+                id: journalId,
+                owner: ownerId
+            }
+        };
+
+        await JournalModel.destroy(query);
+        res.status(200).json({ message: "Journal Entry Removed" });
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
 });
 
 module.exports = router;
