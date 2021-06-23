@@ -1,5 +1,5 @@
 const UserModel = require("./user");
-const LogModel = require("./journal");
+const JournalModel = require("./journal");
 
 module.exports = { 
     UserModel,

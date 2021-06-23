@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/:owner", validateJWT, async (req, res) => {
+router.get("/mine", validateJWT, async (req, res) => {
     const { id } = req.user;
     try {
         const userJournals = await JournalModel.findAll({
@@ -42,9 +42,21 @@ router.get("/:owner", validateJWT, async (req, res) => {
         });
         res.status(200).json(userJournals);
     } catch (err) {
-        res.status(500).json({ error: err});
+        res.status(500).json({ error: err });
     }
-})
+});
+
+router.get("/:title", async (req, res) => {
+    const { title } = req.params;
+    try {
+        const results = await JournalModel.findAll({
+            where: { title: title }
+        });
+        res.status(200).json(results);
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+});
 
 router.put("/update/:entryId", validateJWT, async (req, res) => {
     const { title, date, entry } = req.body.journal;
@@ -54,7 +66,7 @@ router.put("/update/:entryId", validateJWT, async (req, res) => {
     const query = {
         where: {
             id: journalId,
-            owner: userId
+            owner_id: userId
         }
     };
 
